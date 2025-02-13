@@ -1,4 +1,15 @@
-import React, { useState, useEffect } from 'react';
+
+
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext';
+import { Login } from './components/auth/Login';
+import { Signup } from './components/auth/Signup';
+import { ForgotPassword } from './components/auth/ForgotPassword';
+import { Dashboard } from './components/Dashboard';
+import { Profile } from './components/auth/Profile';
+import { EditProfile } from './components/auth/EditProfile';
+import { PrivateRoute } from './components/PrivateRoute';
 import { FileUpload } from './components/FileUpload';
 import { AnalysisResult } from './components/AnalysisResult';
 import { Microscope, FileText, Loader2, Activity, Brain, FlaskRound, Scan, Dna, Zap, Search, FileSearch, CircleDot, Quote, Binary, Network, Cpu, Database, Workflow, CheckCircle } from 'lucide-react';
@@ -207,33 +218,33 @@ const generateConsistentResult = (file: File): AnalysisResultType => {
   };
 };
 
-function App() {
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [result, setResult] = useState<AnalysisResultType | null>(null);
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
-  const [showWelcome, setShowWelcome] = useState(true);
-  const [analysisStep, setAnalysisStep] = useState(0);
-  const [analysisProgress, setAnalysisProgress] = useState(0);
-  const [processingImage, setProcessingImage] = useState<string | null>(null);
-  const [currentQuote, setCurrentQuote] = useState(0);
-  const [currentFileName, setCurrentFileName] = useState<string>('');
-  const [algorithmProgress, setAlgorithmProgress] = useState<{ [key: string]: number }>(
+function AnalysisApp() {
+  const [isAnalyzing, setIsAnalyzing] = React.useState(false);
+  const [result, setResult] = React.useState<AnalysisResultType | null>(null);
+  const [selectedImage, setSelectedImage] = React.useState<string | null>(null);
+  const [showWelcome, setShowWelcome] = React.useState(true);
+  const [analysisStep, setAnalysisStep] = React.useState(0);
+  const [analysisProgress, setAnalysisProgress] = React.useState(0);
+  const [processingImage, setProcessingImage] = React.useState<string | null>(null);
+  const [currentQuote, setCurrentQuote] = React.useState(0);
+  const [currentFileName, setCurrentFileName] = React.useState<string>('');
+  const [algorithmProgress, setAlgorithmProgress] = React.useState<{ [key: string]: number }>(
     ANALYSIS_ALGORITHMS.reduce((acc, alg) => ({ ...acc, [alg.name]: 0 }), {})
   );
-  const [algorithmAccuracy, setAlgorithmAccuracy] = useState<{ [key: string]: number }>(
+  const [algorithmAccuracy, setAlgorithmAccuracy] = React.useState<{ [key: string]: number }>(
     ANALYSIS_ALGORITHMS.reduce((acc, alg) => ({ ...acc, [alg.name]: 0 }), {})
   );
-  const [completedAlgorithms, setCompletedAlgorithms] = useState<string[]>([]);
-  const [showAnalysisPage, setShowAnalysisPage] = useState(false);
+  const [completedAlgorithms, setCompletedAlgorithms] = React.useState<string[]>([]);
+  const [showAnalysisPage, setShowAnalysisPage] = React.useState(false);
 
-  useEffect(() => {
+  React.useEffect(() => {
     const timer = setTimeout(() => {
       setShowWelcome(false);
     }, 2000);
     return () => clearTimeout(timer);
   }, []);
 
-  useEffect(() => {
+  React.useEffect(() => {
     const quoteInterval = setInterval(() => {
       setCurrentQuote(prev => (prev + 1) % INSPIRATIONAL_QUOTES.length);
     }, 5000);
@@ -241,7 +252,7 @@ function App() {
     return () => clearInterval(quoteInterval);
   }, []);
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (isAnalyzing) {
       const totalDuration = processingImage ? 10000 : 15000;
       const progressInterval = setInterval(() => {
@@ -274,7 +285,7 @@ function App() {
     }
   }, [isAnalyzing, processingImage]);
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (isAnalyzing && currentFileName) {
       ANALYSIS_ALGORITHMS.forEach(algorithm => {
         const updateInterval = 50;
@@ -364,189 +375,216 @@ function App() {
     }
   ];
 
-  if (!showAnalysisPage) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 animate-gradient-x">
-        {showWelcome && (
-          <div className="fixed inset-0 flex items-center justify-center bg-white z-50 transition-opacity duration-1000">
-            <div className="text-center animate-float">
-              <Microscope className="h-16 w-16 text-blue-600 mx-auto mb-4 animate-rotate-scale" />
-              <h1 className="text-3xl font-bold text-gray-900">Welcome to KidneyAI</h1>
-            </div>
-          </div>
-        )}
-
-        <header className="glass-effect sticky top-0 z-40 shadow-sm animate-glow">
-          <div className="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-4">
-                <Microscope className="h-8 w-8 text-blue-600 animate-float" />
-                <h1 className="text-2xl font-bold text-gray-900">KidneyAI Analysis System</h1>
-              </div>
-              <div className="flex space-x-4">
-                <Activity className="h-6 w-6 text-green-500 animate-pulse" />
-                <Brain className="h-6 w-6 text-blue-500 animate-pulse" />
-                <FlaskRound className="h-6 w-6 text-purple-500 animate-pulse" />
-              </div>
-            </div>
-          </div>
-        </header>
-
-        <main className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="hover-scale transition-all">
-              <div className="glass-effect rounded-xl p-6 h-full animate-glow">
-                <h2 className="text-xl font-semibold mb-4 flex items-center">
-                  <Microscope className="h-6 w-6 text-blue-600 mr-2" />
-                  Tissue Image Analysis
-                </h2>
-                <FileUpload
-                  onFileUpload={analyzeFile}
-                  acceptedTypes={['image/*']}
-                  title="Upload Tissue Image"
-                  description="Drop a tissue image or click to browse"
-                />
-              </div>
-            </div>
-
-            <div className="hover-scale transition-all">
-              <div className="glass-effect rounded-xl p-6 h-full animate-glow">
-                <h2 className="text-xl font-semibold mb-4 flex items-center">
-                  <FileText className="h-6 w-6 text-blue-600 mr-2" />
-                  Medical Report Analysis
-                </h2>
-                <FileUpload
-                  onFileUpload={analyzeFile}
-                  acceptedTypes={['.csv', '.xlsx', '.pdf']}
-                  title="Upload Medical Report"
-                  description="Drop a report file (CSV, XLSX, or PDF) or click to browse"
-                />
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-12">
-            <div className="glass-effect rounded-xl p-6 text-center max-w-2xl mx-auto">
-              <Quote className="h-6 w-6 text-blue-500 mx-auto mb-4" />
-              <div key={currentQuote} className="quotes-transition">
-                <p className="text-lg text-gray-700 italic mb-2">
-                  "{INSPIRATIONAL_QUOTES[currentQuote].text}"
-                </p>
-                <p className="text-sm text-gray-500">
-                  - {INSPIRATIONAL_QUOTES[currentQuote].author}
-                </p>
-              </div>
-            </div>
-          </div>
-        </main>
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 animate-gradient-x">
-      <header className="glass-effect sticky top-0 z-40 shadow-sm animate-glow">
-        <div className="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <Microscope className="h-8 w-8 text-blue-600 animate-float" />
-              <h1 className="text-2xl font-bold text-gray-900">KidneyAI Analysis System</h1>
-            </div>
-            <button
-              onClick={() => setShowAnalysisPage(false)}
-              className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-            >
-              Back to Upload
-            </button>
-          </div>
-        </div>
-      </header>
+    <Router>
+      <AuthProvider>
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/profile" element={
+            <PrivateRoute>
+              <Profile />
+            </PrivateRoute>
+          } />
+          <Route path="/profile/edit" element={
+            <PrivateRoute>
+              <EditProfile />
+            </PrivateRoute>
+          } />
+          <Route path="/dashboard" element={
+            <PrivateRoute>
+              <Dashboard />
+            </PrivateRoute>
+          } />
+          <Route path="/analysis" element={
+            <PrivateRoute>
+              {!showAnalysisPage ? (
+                <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 animate-gradient-x">
+                  {showWelcome && (
+                    <div className="fixed inset-0 flex items-center justify-center bg-white z-50 transition-opacity duration-1000">
+                      <div className="text-center animate-float">
+                        <Microscope className="h-16 w-16 text-blue-600 mx-auto mb-4 animate-rotate-scale" />
+                        <h1 className="text-3xl font-bold text-gray-900">Welcome to KidneyAI</h1>
+                      </div>
+                    </div>
+                  )}
 
-      <main className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
-        {isAnalyzing && (
-          <div className="mt-8 glass-effect rounded-xl p-8 relative overflow-hidden animate-processing">
-            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-blue-100/20 to-transparent animate-scanning" />
-            
-            <div className="relative z-10">
-              {processingImage && (
-                <div className="mb-8 processing-container">
-                  <div className="processing-image relative rounded-lg overflow-hidden max-w-md mx-auto">
-                    <img
-                      src={processingImage}
-                      alt="Processing"
-                      className="w-full h-64 object-cover rounded-lg shadow-lg"
-                    />
-                    <div className="scanline"></div>
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-blue-400/20 to-transparent animate-scanning"></div>
-                  </div>
-                </div>
-              )}
-
-              <h3 className="text-xl font-semibold text-gray-800 mb-6 text-center">AI Analysis in Progress</h3>
-              
-              <div className="max-w-2xl mx-auto space-y-6">
-                {ANALYSIS_ALGORITHMS.map((algorithm) => (
-                  <div key={algorithm.name} className="bg-white rounded-lg p-4 shadow-sm">
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center space-x-3">
-                        {React.createElement(algorithm.icon, {
-                          className: `h-5 w-5 ${algorithm.color} ${
-                            completedAlgorithms.includes(algorithm.name) ? '' : 'animate-pulse'
-                          }`
-                        })}
-                        <div>
-                          <h4 className="font-medium text-gray-900">{algorithm.name}</h4>
-                          <p className="text-sm text-gray-500">{algorithm.description}</p>
+                  <header className="glass-effect sticky top-0 z-40 shadow-sm animate-glow">
+                    <div className="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-4">
+                          <Microscope className="h-8 w-8 text-blue-600 animate-float" />
+                          <h1 className="text-2xl font-bold text-gray-900">KidneyAI Analysis System</h1>
+                        </div>
+                        <div className="flex space-x-4">
+                          <Activity className="h-6 w-6 text-green-500 animate-pulse" />
+                          <Brain className="h-6 w-6 text-blue-500 animate-pulse" />
+                          <FlaskRound className="h-6 w-6 text-purple-500 animate-pulse" />
                         </div>
                       </div>
-                      <div className="flex items-center space-x-4">
-                        <span className="text-sm font-medium">
-                          Accuracy: {(algorithmAccuracy[algorithm.name] * 100).toFixed(1)}%
-                        </span>
-                        {completedAlgorithms.includes(algorithm.name) ? (
-                          <CheckCircle className="h-5 w-5 text-green-500" />
-                        ) : (
-                          <Loader2 className="h-5 w-5 animate-spin text-blue-500" />
-                        )}
+                    </div>
+                  </header>
+
+                  <main className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                      <div className="hover-scale transition-all">
+                        <div className="glass-effect rounded-xl p-6 h-full animate-glow">
+                          <h2 className="text-xl font-semibold mb-4 flex items-center">
+                            <Microscope className="h-6 w-6 text-blue-600 mr-2" />
+                            Tissue Image Analysis
+                          </h2>
+                          <FileUpload
+                            onFileUpload={analyzeFile}
+                            acceptedTypes={['image/*']}
+                            title="Upload Tissue Image"
+                            description="Drop a tissue image or click to browse"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="hover-scale transition-all">
+                        <div className="glass-effect rounded-xl p-6 h-full animate-glow">
+                          <h2 className="text-xl font-semibold mb-4 flex items-center">
+                            <FileText className="h-6 w-6 text-blue-600 mr-2" />
+                            Medical Report Analysis
+                          </h2>
+                          <FileUpload
+                            onFileUpload={analyzeFile}
+                            acceptedTypes={['.csv', '.xlsx', '.pdf']}
+                            title="Upload Medical Report"
+                            description="Drop a report file (CSV, XLSX, or PDF) or click to browse"
+                          />
+                        </div>
                       </div>
                     </div>
-                    <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-                      <div 
-                        className={`h-full rounded-full transition-all duration-300 ease-out ${
-                          completedAlgorithms.includes(algorithm.name) ? 'bg-green-500' : 'bg-blue-500'
-                        }`}
-                        style={{ width: `${algorithmProgress[algorithm.name] || 0}%` }}
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
 
-        {result && !isAnalyzing && (
-          <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-8">
-            {selectedImage && (
-              <div className="glass-effect rounded-xl p-6 hover-scale transition-all animate-glow">
-                <h3 className="text-lg font-semibold mb-4">Analyzed Image</h3>
-                <div className="max-w-md mx-auto">
-                  <img
-                    src={selectedImage}
-                    alt="Analyzed tissue"
-                    className="w-full h-64 object-cover rounded-lg shadow-lg transition-transform hover:scale-105"
-                  />
+                    <div className="mt-12">
+                      <div className="glass-effect rounded-xl p-6 text-center max-w-2xl mx-auto">
+                        <Quote className="h-6 w-6 text-blue-500 mx-auto mb-4" />
+                        <div key={currentQuote} className="quotes-transition">
+                          <p className="text-lg text-gray-700 italic mb-2">
+                            "{INSPIRATIONAL_QUOTES[currentQuote].text}"
+                          </p>
+                          <p className="text-sm text-gray-500">
+                            - {INSPIRATIONAL_QUOTES[currentQuote].author}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </main>
                 </div>
-              </div>
-            )}
-            <div className={selectedImage ? 'md:col-span-1' : 'md:col-span-2'}>
-              <AnalysisResult result={result} />
-            </div>
-          </div>
-        )}
-      </main>
-    </div>
+              ) : (
+                <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 animate-gradient-x">
+                  <header className="glass-effect sticky top-0 z-40 shadow-sm animate-glow">
+                    <div className="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-4">
+                          <Microscope className="h-8 w-8 text-blue-600 animate-float" />
+                          <h1 className="text-2xl font-bold text-gray-900">KidneyAI Analysis System</h1>
+                        </div>
+                        <button
+                          onClick={() => setShowAnalysisPage(false)}
+                          className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                        >
+                          Back to Upload
+                        </button>
+                      </div>
+                    </div>
+                  </header>
+
+                  <main className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+                    {isAnalyzing && (
+                      <div className="mt-8 glass-effect rounded-xl p-8 relative overflow-hidden animate-processing">
+                        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-blue-100/20 to-transparent animate-scanning" />
+                        
+                        <div className="relative z-10">
+                          {processingImage && (
+                            <div className="mb-8 processing-container">
+                              <div className="processing-image relative rounded-lg overflow-hidden max-w-md mx-auto">
+                                <img
+                                  src={processingImage}
+                                  alt="Processing"
+                                  className="w-full h-64 object-cover rounded-lg shadow-lg"
+                                />
+                                <div className="scanline"></div>
+                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-blue-400/20 to-transparent animate-scanning"></div>
+                              </div>
+                            </div>
+                          )}
+
+                          <h3 className="text-xl font-semibold text-gray-800 mb-6 text-center">AI Analysis in Progress</h3>
+                          
+                          <div className="max-w-2xl mx-auto space-y-6">
+                            {ANALYSIS_ALGORITHMS.map((algorithm) => (
+                              <div key={algorithm.name} className="bg-white rounded-lg p-4 shadow-sm">
+                                <div className="flex items-center justify-between mb-2">
+                                  <div className="flex items-center space-x-3">
+                                    {React.createElement(algorithm.icon, {
+                                      className: `h-5 w-5 ${algorithm.color} ${
+                                        completedAlgorithms.includes(algorithm.name) ? '' : 'animate-pulse'
+                                      }`
+                                    })}
+                                    <div>
+                                      <h4 className="font-medium text-gray-900">{algorithm.name}</h4>
+                                      <p className="text-sm text-gray-500">{algorithm.description}</p>
+                                    </div>
+                                  </div>
+                                  <div className="flex items-center space-x-4">
+                                    <span className="text-sm font-medium">
+                                      Accuracy: {(algorithmAccuracy[algorithm.name] * 100).toFixed(1)}%
+                                    </span>
+                                    {completedAlgorithms.includes(algorithm.name) ? (
+                                      <CheckCircle className="h-5 w-5 text-green-500" />
+                                    ) : (
+                                      <Loader2 className="h-5 w-5 animate-spin text-blue-500" />
+                                    )}
+                                  </div>
+                                </div>
+                                <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                                  <div 
+                                    className={`h-full rounded-full transition-all duration-300 ease-out ${
+                                      completedAlgorithms.includes(algorithm.name) ? 'bg-green-500' : 'bg-blue-500'
+                                    }`}
+                                    style={{ width: `${algorithmProgress[algorithm.name] || 0}%` }}
+                                  />
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {result && !isAnalyzing && (
+                      <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-8">
+                        {selectedImage && (
+                          <div className="glass-effect rounded-xl p-6 hover-scale transition-all animate-glow">
+                            <h3 className="text-lg font-semibold mb-4">Analyzed Image</h3>
+                            <div className="max-w-md mx-auto">
+                              <img
+                                src={selectedImage}
+                                alt="Analyzed tissue"
+                                className="w-full h-64 object-cover rounded-lg shadow-lg transition-transform hover:scale-105"
+                              />
+                            </div>
+                          </div>
+                        )}
+                        <div className={selectedImage ? 'md:col-span-1' : 'md:col-span-2'}>
+                          <AnalysisResult result={result} />
+                        </div>
+                      </div>
+                    )}
+                  </main>
+                </div>
+              )}
+            </PrivateRoute>
+          } />
+          <Route path="/" element={<Navigate to="/login" />} />
+        </Routes>
+      </AuthProvider>
+    </Router>
   );
 }
 
-export default App;
+export default AnalysisApp;
